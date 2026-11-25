@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Donatı Hesap</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-title" content="Donatı">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#c2410c">
+
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--tx:#14181f;--mu:#5b6573;--ac:#c2410c;--ok:#15803d;--no:#b91c1c;--bd:#d9dde3;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101216;--card:#1a1d23;--tx:#eef0f3;--mu:#98a2b0;--ac:#fb923c;--ok:#4ade80;--no:#f87171;--bd:#2d323b}}
+:root[data-theme="dark"]{--bg:#101216;--card:#1a1d23;--tx:#eef0f3;--mu:#98a2b0;--ac:#fb923c;--ok:#4ade80;--no:#f87171;--bd:#2d323b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0 auto;background:var(--bg);color:var(--tx);font:16px/1.4 -apple-system,system-ui,"Segoe UI",sans-serif;max-width:560px;padding:16px}
+h1{font-size:20px;margin:4px 0 12px}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tabs button{flex:1;padding:9px 2px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;font-size:13px}
+.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+label{display:block;font-size:13px;color:var(--mu);margin:8px 0 4px}
+input,select{width:100%;padding:10px;font-size:17px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx)}
+.row{display:flex;gap:8px;align-items:end}.row>*{flex:1}
+.res{font-size:18px;font-weight:600;margin-top:10px}
+.ok{color:var(--ok)}.no{color:var(--no)}
+.sm{font-size:13px;color:var(--mu);margin-top:6px}
+.hide{display:none}
+.sc{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:6px;border-bottom:1px solid var(--bd);text-align:right}th:first-child,td:first-child{text-align:left}
+</style>
+</head>
+<body>
+<h1>Donatı Hesap</h1>
+<div class="tabs"><button id="t1" class="on">Eşdeğer</button><button id="t2">Kiriş</button><button id="t3">Ağırlık</button><button id="t4">Boy</button></div>
+
+<div id="p1">
+<div class="card">
+<div class="row"><div><label>Mevcut adet</label><input id="n1" type="number" inputmode="numeric" value="5"></div>
+<div><label>Mevcut çap</label><select id="d1" class="dia"></select></div></div>
+<label>Yerine kullanılacak çap</label><select id="d2" class="dia"></select>
+<div class="res" id="r1"></div><div class="sm" id="s1"></div>
+</div>
+<div class="sm">Alan eşitliğine göre, aynı çelik sınıfı varsayılır. Sonuç her zaman yukarı yuvarlanır.</div>
+</div>
+
+<div id="p2" class="hide">
+<div class="card">
+<div class="row"><div><label>Kiriş genişliği (cm)</label><input id="bw" type="number" inputmode="decimal" value="25"></div>
+<div><label>Her yandan pas payı (cm)</label><input id="cv" type="number" inputmode="decimal" step="0.5" value="2.5"></div></div>
+<div class="row"><div><label>Etriye çapı</label><select id="et" class="dia"></select></div>
+<div><label>Min. net aralık (mm)</label><input id="sp" type="number" inputmode="decimal" value="25"></div></div>
+<div class="res" id="stw"></div>
+<div class="sm">Net aralık: girilen değer ile o sıradaki en büyük çaptan büyük olanı kullanılır.</div>
+</div>
+<div class="card" id="grp"></div>
+<div class="card"><div id="r2"></div></div>
+<div class="sm">Üst üste iki sıra varsa sıralar arası düşey net aralık da (min. 25 mm veya çap) kiriş yüksekliğinde hesaba katılmalıdır. Sonuç, statik projenin yerini tutmaz.</div>
+</div>
+
+<div id="p3" class="hide">
+<div class="card">
+<div class="row"><div><label>Çap</label><select id="wd" class="dia"></select></div>
+<div><label>Adet</label><input id="wn" type="number" inputmode="numeric" value="1"></div>
+<div><label>Boy (m)</label><input id="wl" type="number" inputmode="decimal" value="12"></div></div>
+<div class="res" id="r3"></div><div class="sm" id="s3"></div>
+</div>
+<div class="card sc"><table id="tb"></table></div>
+</div>
+
+<div id="p4" class="hide">
+<div class="card">
+<div class="row"><div><label>Beton sınıfı</label><select id="cc"></select></div>
+<div><label>Çelik sınıfı</label><select id="cs"></select></div></div>
+<div class="row"><div><label>Çap</label><select id="ld" class="dia"></select></div>
+<div><label>Bindirme katsayısı α</label><select id="al"></select></div></div>
+<div class="res" id="r4"></div><div class="sm" id="s4"></div>
+</div>
+<div class="sm">TS 500 madde 9.1: lb = 0,12·(fyd/fctd)·Φ ≥ 20Φ. Bindirme boyu = α·lb. α, bindirme yüzdesine ve aralığa göre TS 500 çizelgesinden seçilmelidir; en güvenli taraf için varsayılan en büyük değerdir. Sonuçlar 5 cm'ye yukarı yuvarlanır. Deprem bölgesi detayları için TBDY ayrıca kontrol edilmelidir.</div>
+</div>
+
+<div class="sm" style="text-align:center;margin-top:16px">Sonuçlar bilgilendirme amaçlıdır. Statik proje ve ilgili yönetmelikler esastır; uygulama sorumluluk kabul etmez.</div>
+<script>
+var D=[8,10,12,14,16,18,20,22,24,26,28,30,32];
+var A=function(d){return Math.PI*d*d/4};
+var $=function(i){return document.getElementById(i)};
+var up=function(x){return Math.ceil(x-1e-9)};
+document.querySelectorAll('.dia').forEach(function(s){D.forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent='Φ'+d;s.appendChild(o)})});
+$('d1').value=14;$('d2').value=16;$('et').value=8;$('wd').value=12;$('ld').value=12;
+var G=document.createElement('div');var gh='';
+var dv=[12,12,12];var cn=[1,1,1];var rw=[1,1,1];
+for(var i=0;i<3;i++){gh+='<div class="row"><div><label>'+(i+1)+'. grup adet</label><input id="a'+i+'" type="number" inputmode="numeric" value="'+cn[i]+'"></div><div><label>Çap</label><select id="b'+i+'" class="dia"></select></div><div><label>Sıra</label><select id="q'+i+'"><option value="1">1</option><option value="2">2</option></select></div></div>'}
+$('grp').innerHTML=gh;
+for(var i=0;i<3;i++){D.forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent='Φ'+d;$('b'+i).appendChild(o)});$('b'+i).value=dv[i]}
+var CC={C20:20,C25:25,C30:30,C35:35,C40:40,C45:45,C50:50},CS={'B420C':420,'B500C':500};
+Object.keys(CC).forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=k;$('cc').appendChild(o)});$('cc').value='C30';
+Object.keys(CS).forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=k;$('cs').appendChild(o)});
+[1,1.2,1.4,1.6,1.8,2].forEach(function(a){var o=document.createElement('option');o.value=a;o.textContent=a.toString().replace('.',',');$('al').appendChild(o)});$('al').value=1;
+function c1(){
+ var n=+$('n1').value,a=+$('d1').value,b=+$('d2').value;
+ if(!(n>0)){$('r1').textContent='';$('s1').textContent='';return}
+ var req=n*A(a),raw=req/A(b),k=up(raw),prov=k*A(b);
+ var ex=(prov/req-1)*100;$('r1').className='res '+(ex<=15?'ok':'no');$('r1').textContent=k+' adet Φ'+b+' kullanılmalıdır';
+ $('s1').textContent='Mevcut alan '+req.toFixed(1)+' mm², hesaplanan '+raw.toFixed(2)+' adet, yukarı yuvarlanan '+k+' adet ('+prov.toFixed(1)+' mm², fazlalık %'+((prov/req-1)*100).toFixed(1)+')';
+}
+function c2(){
+ var bw=(+$('bw').value)*10,cv=(+$('cv').value)*10,et=+$('et').value,sp=+$('sp').value;
+ var st=bw-2*cv,inner=st-2*et;
+ $('stw').textContent='Etriye dış genişliği: '+(st/10).toFixed(1)+' cm (iç net: '+(inner/10).toFixed(1)+' cm)';
+ var rows={1:[],2:[]};
+ for(var i=0;i<3;i++){var n=+$('a'+i).value;if(n>0)rows[+$('q'+i).value].push([n,+$('b'+i).value])}
+ var out='',all=true,any=false;
+ [1,2].forEach(function(r){
+  var g=rows[r];if(!g.length)return;any=true;
+  var N=0,sum=0,mx=0;g.forEach(function(x){N+=x[0];sum+=x[0]*x[1];mx=Math.max(mx,x[1])});
+  var gap=Math.max(sp,mx),need=sum+(N-1)*gap,ok=need<=inner+1e-9;if(!ok)all=false;
+  var minW=(need+2*et+2*cv)/10;
+  out+='<div class="res"><span class="'+(ok?'ok':'no')+'">'+r+'. sıra: '+(ok?'UYGUNDUR':'UYGUN DEĞİLDİR')+'</span></div><div class="sm">'+N+' çubuk, aralık '+gap+' mm. Gereken net genişlik '+need.toFixed(0)+' mm, mevcut '+inner.toFixed(0)+' mm. Gereken min. kiriş genişliği '+minW.toFixed(1)+' cm'+(ok?'.':', eksik '+(need-inner).toFixed(0)+' mm.')+'</div>';
+ });
+ if(!any)out='<div class="sm">Donatı grubu girin.</div>';
+ else if(rows[1].length&&rows[2].length)out='<div class="res '+(all?'ok':'no')+'">GENEL: '+(all?'UYGUNDUR':'UYGUN DEĞİLDİR')+'</div>'+out;
+ $('r2').innerHTML=out;
+}
+function c3(){
+ var d=+$('wd').value,n=+$('wn').value,l=+$('wl').value;
+ var w=0.00617*d*d;
+ $('r3').textContent=(n>0&&l>0)?(w*n*l).toFixed(1)+' kg':'';
+ $('s3').textContent='Birim ağırlık '+w.toFixed(3)+' kg/m, toplam boy '+(n*l||0).toFixed(1)+' m, kesit alanı '+A(d).toFixed(1)+' mm²';
+ var h='<tr><th>Çap</th><th>Alan mm²</th><th>kg/m</th></tr>';
+ D.forEach(function(x){h+='<tr><td>Φ'+x+'</td><td>'+A(x).toFixed(1)+'</td><td>'+(0.00617*x*x).toFixed(3)+'</td></tr>'});
+ $('tb').innerHTML=h;
+}
+function c4(){
+ var d=+$('ld').value,fck=CC[$('cc').value],fyk=CS[$('cs').value],al=+$('al').value;
+ var fctd=0.35*Math.sqrt(fck)/1.5,fyd=fyk/1.15;
+ var lb=Math.max(0.12*fyd/fctd*d,20*d),lb1=al*lb;
+ var r5=function(mm){return Math.ceil(mm/50-1e-9)*5};
+ $('r4').textContent='Bindirme: '+r5(lb1)+' cm  |  Kenetlenme: '+r5(lb)+' cm';
+ $('s4').textContent='fyd='+fyd.toFixed(1)+' MPa, fctd='+fctd.toFixed(2)+' MPa, lb='+(lb/10).toFixed(1)+' cm, α·lb='+(lb1/10).toFixed(1)+' cm';
+}
+function all(){c1();c2();c3();c4()}
+document.querySelectorAll('input,select').forEach(function(e){e.addEventListener('input',all)});
+function tab(a){for(var i=1;i<=4;i++){$('p'+i).classList.toggle('hide',i!==a);$('t'+i).classList.toggle('on',i===a)}}
+for(var i=1;i<=4;i++)(function(k){$('t'+k).onclick=function(){tab(k)}})(i);
+all();
+</script>
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){})})}
+</script>
+</body>
+</html>
