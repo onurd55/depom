@@ -66,10 +66,7 @@ tr:last-child td{border-bottom:0}
 <div class="row"><div><label>Mevcut 2. donatı, adet</label><input id="n1b" type="number" inputmode="numeric" value="0"></div>
 <div><label>Çap (Φ)</label><select id="d1b" class="dia"></select></div></div>
 <div class="sm">Mevcut kesitte farklı çapta ikinci bir donatı varsa buradan ekleyin, yoksa 0 bırakın.</div>
-<label>Yerine konacak 1. donatı çapı (adedi hesaplanır)</label><select id="d2" class="dia"></select>
-<div class="row"><div><label>Yerine konacak 2. donatı, adet</label><input id="n2b" type="number" inputmode="numeric" value="0"></div>
-<div><label>Çap (Φ)</label><select id="d2b" class="dia"></select></div></div>
-<div class="sm">Karma donatı düzeninde 2. çapın adedini girin, kullanmayacaksanız 0 bırakın. 1. çapın adedi kalan donatı alanına göre yukarı yuvarlanarak hesaplanır.</div>
+<label>Yerine konacak donatı çapı (adedi hesaplanır)</label><select id="d2" class="dia"></select>
 <div class="res" id="r1"></div><div class="sm" id="s1"></div>
 </div>
 </div>
@@ -117,7 +114,7 @@ var A=function(d){return Math.PI*d*d/4};
 var $=function(i){return document.getElementById(i)};
 var up=function(x){return Math.ceil(x-1e-9)};
 document.querySelectorAll('.dia').forEach(function(s){D.forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent='Φ'+d;s.appendChild(o)})});
-$('d1').value=14;$('d2').value=16;$('et').value=8;$('wd').value=12;$('ld').value=12;$('d1b').value=12;$('d2b').value=12;
+$('d1').value=14;$('d2').value=16;$('et').value=8;$('wd').value=12;$('ld').value=12;$('d1b').value=12;
 var G=document.createElement('div');var gh='';
 var dv=[12,12,12];var cn=[1,0,0];var rw=[1,1,1];
 for(var i=0;i<3;i++){gh+='<div class="row"><div><label>'+(i+1)+'. grup adet</label><input id="a'+i+'" type="number" inputmode="numeric" value="'+cn[i]+'"></div><div><label>Çap</label><select id="b'+i+'" class="dia"></select></div><div><label>Sıra</label><select id="q'+i+'"><option value="1">1</option><option value="2">2</option></select></div></div>'}
@@ -129,15 +126,12 @@ Object.keys(CS).forEach(function(k){var o=document.createElement('option');o.val
 [1,1.2,1.4,1.6,1.8,2].forEach(function(a){var o=document.createElement('option');o.value=a;o.textContent=a.toString().replace('.',',');$('al').appendChild(o)});$('al').value=1;
 function c1(){
  var n1=+$('n1').value||0,a1=+$('d1').value,n1b=+$('n1b').value||0,a1b=+$('d1b').value;
- var b=+$('d2').value,n2=+$('n2b').value||0,b2=+$('d2b').value;
+ var b=+$('d2').value;
  var req=n1*A(a1)+n1b*A(a1b);
  if(!(req>0)){$('r1').textContent='';$('s1').textContent='';return}
- var fixed=n2*A(b2),rest=req-fixed,k=rest>0?up(rest/A(b)):0,prov=k*A(b)+fixed;
- var t=[];
- if(k>0)t.push(k+' adet Φ'+b);
- if(n2>0)t.push(n2+' adet Φ'+b2);
+ var k=up(req/A(b)),prov=k*A(b);
  $('r1').className='res ok';
- $('r1').textContent=t.join(' + ')+' kullanılmalıdır';
+ $('r1').textContent=k+' adet Φ'+b+' kullanılmalıdır';
  $('s1').textContent='Mevcut As = '+req.toFixed(1)+' mm², sağlanan As = '+prov.toFixed(1)+' mm², fazlalık %'+((prov/req-1)*100).toFixed(1)+'.';
 }
 function c2(){
