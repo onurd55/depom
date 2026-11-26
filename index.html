@@ -114,9 +114,9 @@ var A=function(d){return Math.PI*d*d/4};
 var $=function(i){return document.getElementById(i)};
 var up=function(x){return Math.ceil(x-1e-9)};
 document.querySelectorAll('.dia').forEach(function(s){D.forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent='Φ'+d;s.appendChild(o)})});
-$('d1').value=14;$('d2').value=16;$('et').value=8;$('wd').value=12;$('ld').value=12;$('d1b').value=12;
+$('d1').value=14;$('d2').value=16;$('et').value=8;$('wd').value=12;$('ld').value=16;$('d1b').value=12;
 var G=document.createElement('div');var gh='';
-var dv=[12,12,12];var cn=[1,0,0];var rw=[1,1,1];
+var dv=[12,12,12];var cn=[5,0,0];var rw=[1,1,1];
 for(var i=0;i<3;i++){gh+='<div class="row"><div><label>'+(i+1)+'. grup adet</label><input id="a'+i+'" type="number" inputmode="numeric" value="'+cn[i]+'"></div><div><label>Çap</label><select id="b'+i+'" class="dia"></select></div><div><label>Sıra</label><select id="q'+i+'"><option value="1">1</option><option value="2">2</option></select></div></div>'}
 $('grp').innerHTML=gh;
 for(var i=0;i<3;i++){D.forEach(function(d){var o=document.createElement('option');o.value=d;o.textContent='Φ'+d;$('b'+i).appendChild(o)});$('b'+i).value=dv[i]}
